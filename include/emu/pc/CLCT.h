@@ -12,6 +12,7 @@
 #include <ctime>
 #include <algorithm>
 #include <vector>
+#include <string>
 //#include "TaoFunc.h"
 #include "CSCConstants.h"
 /// TODO
@@ -193,7 +194,10 @@ class CCLUT
 /////////////////////// CCLUT - Helper Functions ////////////////////////////////////////////////////
 // Text File Parsers / Writers (human readable)
   bool Hits_Generator_LUT(int Bx, int Key, int Pat, int LUT_code, std::vector<Hit>& hits);
-	void Plot_And_Compare_Hits(Response Resp, int(&VisualMap)[LAYERS][13]);
+	bool Check_Hits(Response Input, int BX_inn, Response output, int BX_out);
+	bool Check_Hits_map(std::vector<std::vector<int> > VisualMap_input, std::vector<std::vector<int> > &VisualMap_output);
+	void generate_response(Response Send, Response Read, Response Corr, int corr, Response Accuracy, Response Accuracy_1, int accu, std::vector<std::vector<std::string> > &response);
+	void Plot_And_Compare_Hits(Response Resp, std::vector<std::vector<int> > &VisualMap);
 	std::vector<double> Get_Expexted_Key_Input(CCLUT Res);
   int EightResolution(int KeyLayer, int CCLUT_code, int PiD);
 	int GetNHits(int CCLUT_code);

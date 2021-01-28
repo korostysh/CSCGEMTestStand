@@ -12,11 +12,11 @@ namespace CSCConstants
      enum strips_info {NUM_HSPERDCFEB = 32, NUM_HS_ME1B = 128, NUM_HS_ME1A = 96, NUM_HS = 224, NUM_STRIPS = 112, NUM_DISTRIPS = 56};
      extern const int CLCTPatterns[NUM_PATTERNS][NUM_LAYERS];
      extern const int CCLUT_offset[5][6];
-     extern const int pat6[4096];
-     extern const int pat7[4096];
-     extern const int pat8[4096];
-     extern const int pat9[4096];
-     extern const int pat10[4096];
+     extern const int pat0[4096];
+     extern const int pat1[4096];
+     extern const int pat2[4096];
+     extern const int pat3[4096];
+     extern const int pat4[4096];
 }
 }}
 #endif

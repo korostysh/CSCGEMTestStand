@@ -1,6 +1,7 @@
 #include "CLCT.h"
 #include "TaoFunc.h"
 #include <cmath>
+#include <string>
 //#include <stdlib.h>
 //#include "CSCConstants.h"
 
@@ -89,45 +90,30 @@ int EightResolution(int KeyLayer, int CCLUT_code, int PiD)
   {
     int shift = -9999999;
 
-		if (PiD == 6) {
-			shift = CSCConstants::pat6[CCLUT_code];
+		if (PiD == 0) {
+			shift = CSCConstants::pat0[CCLUT_code];
 		}
-		if (PiD == 7) {
-			shift = CSCConstants::pat7[CCLUT_code];
+		else if (PiD == 1) {
+			shift = CSCConstants::pat1[CCLUT_code];
 		}
-		if (PiD == 8) {
-			shift = CSCConstants::pat8[CCLUT_code];
+		else if (PiD == 2) {
+			shift = CSCConstants::pat2[CCLUT_code];
 		}
-		if (PiD == 9) {
-			shift = CSCConstants::pat9[CCLUT_code];
+		else if (PiD == 3) {
+			shift = CSCConstants::pat3[CCLUT_code];
 		}
-		if (PiD == 10) {
-			shift = CSCConstants::pat10[CCLUT_code];
+		else if (PiD == 4) {
+			shift = CSCConstants::pat4[CCLUT_code];
 		}
-
-    /*
-    int shift_b[4];
-    shift_b[3] = shift%2;
-		shift /= 2;
-
-		shift_b[2] = shift%2;
-		shift /= 2;
-
-		shift_b[1] = shift%2;
-		shift /= 2;
-
-		shift_b[0] = shift%2;
-
-		shift = shift_b[0] + 	shift_b[1]*2 + shift_b[2]*4 + shift_b[3]*8;
-    */
-
+    else std::cout << "Wrong PiD" << '\n';
 
 		shift -= 7;
 
     //shift = -shift;
 
 		shift += KeyLayer*4;
-
+		if (PiD == 0)  shift += 4;
+    if (PiD == 1)  shift -= 4;
 		return shift;
 
 	}
@@ -1081,15 +1067,12 @@ std::vector<double> Get_Expexted_Key_Input(CCLUT Res){
 	//res.push_back(Get_Minimal_Halfstrip(xData, data));
   return res;
 }
-
-
-
-
-void Plot_And_Compare_Hits(Response Resp, int(&VisualMap)[LAYERS][13]){
+/*
+void Plot_And_Compare_Hits_from_Map(Response Resp, int(&VisualMap)[LAYERS][15]){
 
 
 		for (int i = 0; i < LAYERS; i++){
-			for (int j = 0; j < 13; j++){
+			for (int j = 0; j < 15; j++){
 			VisualMap[i][j] = 0;
 			}
 		}
@@ -1097,12 +1080,246 @@ void Plot_And_Compare_Hits(Response Resp, int(&VisualMap)[LAYERS][13]){
     std::vector<int> Hits_map;
     Convert_LUT_to_hits(Resp.CC_code, Hits_map);
 
-    int pat_offset = 10 - Resp.PiD;
+    int pat_offset = Resp.PiD;
 		for (int i = 0; i < LAYERS; i ++)
 		{
-			int hs = 5 + CSCConstants::CCLUT_offset[pat_offset][i] + Hits_map[i];
-      if(Hits_map[i] > 0 && hs < 13) VisualMap[i][hs] = 1;
+			int hs = 6 + CSCConstants::CCLUT_offset[pat_offset][i] + Hits_map[i];
+      if(Hits_map[i] > 0 && hs < 15) VisualMap[i][hs] = 1;
 		}
+
+}
+*/
+
+
+void Plot_And_Compare_Hits(Response Resp, std::vector<std::vector<int> > &VisualMap){
+
+
+		for (int i = 0; i < LAYERS; i++){
+			std::vector<int> temp;
+			for (int j = 0; j < 15; j++){
+		   	temp.push_back(0);
+			}
+			VisualMap.push_back(temp);
+		}
+
+    std::vector<int> Hits_map;
+    Convert_LUT_to_hits(Resp.CC_code, Hits_map);
+
+    int pat_offset = Resp.PiD;
+		for (int i = 0; i < VisualMap.size(); i ++)
+		{
+			int hs = 6 + CSCConstants::CCLUT_offset[pat_offset][i] + Hits_map[i];
+      if(Hits_map[i] > 0 && hs < 15 && hs >= 0) VisualMap[i][hs] = 1;
+		}
+
+}
+
+std::string sstr(int a)
+{
+    std::ostringstream sstr;
+     sstr << a;
+    return sstr.str();
+}
+
+void generate_response(Response Send, Response Read, Response Corr, int corr, Response Accuracy, Response Accuracy_1, int accu,	std::vector<std::vector<std::string> > &response){
+  std::cout << "Generatig response" << '\n';
+	for (int i = 0; i < 6; i++) {
+		std::vector<std::string> response_string;
+		for (int j = 0; j < 7; j++) {
+			std::string word = "|                   ";
+			response_string.push_back(word);
+		}
+		response.push_back(response_string);
+	}
+	//first line
+	std::string acc = sstr(accu);
+	std::string cor = sstr(corr);
+	std::string slash = "/";
+  std::string x = "Nhit";
+	response[0][1].resize(20-x.length());
+  response[0][1] = response[0][1] + x;
+
+	x = "Key";
+	response[0][2].resize(20-x.length());
+  response[0][2] = response[0][2] + x;
+
+	x = "PiD";
+	response[0][3].resize(20-x.length());
+	response[0][3] = response[0][3] + x;
+
+	x = "ResEight";
+	response[0][4].resize(20-x.length());
+	response[0][4] = response[0][4] + x;
+
+	x = "CC code";
+	response[0][5].resize(20-x.length());
+	response[0][5] = response[0][5] + x;
+
+	x = "CC code binary";
+	response[0][6].resize(20-x.length());
+	response[0][6] = response[0][6] + x;
+
+	//2 string Send
+  x = "Send";
+  response[1][0].resize(20-x.length());
+  response[1][0] = response[1][0] + x;
+
+	x = sstr(Send.Nhit);
+	response[1][1].resize(20-x.length());
+	response[1][1] = response[1][1] + x;
+
+	x = sstr(Send.Key);
+	response[1][2].resize(20-x.length());
+	response[1][2] = response[1][2] + x;
+
+	x = sstr(Send.PiD);
+	response[1][3].resize(20-x.length());
+	response[1][3] = response[1][3] + x;
+
+	x = sstr(Send.ResEight);
+	response[1][4].resize(20-x.length());
+	response[1][4] = response[1][4] + x;
+
+	x = sstr(Send.CC_code);
+	response[1][5].resize(20-x.length());
+	response[1][5] = response[1][5] + x;
+
+	//3 string
+	x = "Read";
+	response[2][0].resize(20-x.length());
+	response[2][0] = response[2][0] + x;
+
+	x = sstr(Read.Nhit);
+	response[2][1].resize(20-x.length());
+	response[2][1] = response[2][1] + x;
+
+	x = sstr(Read.Key);
+	response[2][2].resize(20-x.length());
+	response[2][2] = response[2][2] + x;
+
+	x = sstr(Read.PiD);
+	response[2][3].resize(20-x.length());
+	response[2][3] = response[2][3] + x;
+
+	x = sstr(Read.ResEight);
+	response[2][4].resize(20-x.length());
+	response[2][4] = response[2][4] + x;
+
+	x = sstr(Read.CC_code);
+	response[2][5].resize(20-x.length());
+	response[2][5] = response[2][5] + x;
+
+	//4 string
+	x = "Correlation" ;
+  response[3][0].resize(20-x.length());
+  response[3][0] = response[3][0] + x;
+
+	x = sstr(Corr.Nhit) + slash + cor;
+	response[3][1].resize(20-x.length());
+	response[3][1] = response[3][1] + x;
+
+	x = sstr(Corr.Key) + slash + cor;
+	response[3][2].resize(20-x.length());
+	response[3][2] = response[3][2] + x;
+
+	x = sstr(Corr.PiD) + slash + cor;
+	response[3][3].resize(20-x.length());
+	response[3][3] = response[3][3] + x;
+
+	x = sstr(Corr.ResEight) + slash + cor;
+	response[3][4].resize(20-x.length());
+	response[3][4] = response[3][4] + x;
+
+	x = sstr(Corr.CC_code) + slash + cor;
+	response[3][5].resize(20-x.length());
+	response[3][5] = response[3][5] + x;
+
+	//5 string
+	x = "Toatal Misses";
+	response[4][0].resize(20-x.length());
+	response[4][0] = response[4][0] + x;
+
+	x = sstr(Accuracy.Nhit) + slash + acc;
+	response[4][1].resize(20-x.length());
+	response[4][1] = response[4][1] + x;
+
+	x = sstr(Accuracy.Key) + slash + acc;
+	response[4][2].resize(20-x.length());
+	response[4][2] = response[4][2] + x;
+
+	x = sstr(Accuracy.PiD) + slash + acc;
+	response[4][3].resize(20-x.length());
+	response[4][3] = response[4][3] + x;
+
+	x = sstr(Accuracy.ResEight) + slash + acc;
+	response[4][4].resize(20-x.length());
+	response[4][4] = response[4][4] + x;
+
+	x = sstr(Accuracy.CC_code) + slash + acc;
+	response[4][5].resize(20-x.length());
+	response[4][5] = response[4][5] + x;
+
+	//6 string
+	x = "Toatal Misses +-1";
+	response[5][0].resize(20-x.length());
+	response[5][0] = response[5][0] + x;
+
+	x = sstr(Accuracy_1.Nhit) + slash + acc;
+	response[5][1].resize(20-x.length());
+	response[5][1] = response[5][1] + x;
+
+	x = sstr(Accuracy_1.Key) + slash + acc;
+	response[5][2].resize(20-x.length());
+	response[5][2] = response[5][2] + x;
+
+	x = sstr(Accuracy_1.PiD) + slash + acc;
+	response[5][3].resize(20-x.length());
+	response[5][3] = response[5][3] + x;
+
+	x = sstr(Accuracy_1.ResEight) + slash + acc;
+	response[5][4].resize(20-x.length());
+	response[5][4] = response[5][4] + x;
+
+	x = sstr(Accuracy_1.CC_code) + slash + acc;
+	response[5][5].resize(20-x.length());
+	response[5][5] = response[5][5] + x;
+
+  x = "";
+	std::vector<std::string> binary_rep;
+	int cc = Send.CC_code;
+	for (int i = 0; i < 6; i++) {
+		 if (cc % 4 == 0) binary_rep.push_back(" 00");
+		 else if (cc % 4 == 1) binary_rep.push_back(" 01");
+		 else if (cc % 4 == 2) binary_rep.push_back(" 10");
+		 else if (cc % 4 == 3) binary_rep.push_back(" 11");
+		 cc /= 4;
+	}
+
+	x = x + "|(";
+	for (int i = binary_rep.size()-1; i >=0; i--) {
+		x = x + binary_rep[i];
+	}
+	x = x + ")";
+  response[1][6] = x;
+
+
+	x = "";
+	std::vector<std::string> binary_rep1;
+	cc = Read.CC_code;
+	for (int i = 0; i < 6; i++) {
+		 if (cc % 4 == 0) binary_rep1.push_back(" 00");
+		 else if (cc % 4 == 1) binary_rep1.push_back(" 01");
+		 else if (cc % 4 == 2) binary_rep1.push_back(" 10");
+		 else if (cc % 4 == 3) binary_rep1.push_back(" 11");
+		 cc /= 4;
+	}
+
+	x = x + "|(";
+	for (int i = binary_rep1.size()-1; i >=0; i--) {
+		x = x + binary_rep1[i];
+	}
+	x = x + ")";
+  response[2][6] = x;
 
 }
 
@@ -1115,15 +1332,70 @@ int GetNHits(int CCLUT_code){
 	return Nhits;
 }
 
+bool Check_Hits(Response Send, int BX_inn, Response Read, int BX_out){
+    std::vector<Hit> Send_hits;
+		std::vector<Hit> Read_hits;
+		Hits_Generator_LUT(BX_inn, Send.Key, Send.PiD, Send.CC_code, Send_hits);
+    Hits_Generator_LUT(BX_out, Read.Key, Read.PiD, Read.CC_code, Read_hits);
+    if (Send_hits.size() != Read_hits.size()) return 1;
+		for (int i = 0; i < Send_hits.size(); i++) {
+			if (Send_hits[i].bx != Read_hits[i].bx || Send_hits[i].lay != Read_hits[i].lay || Send_hits[i].hs != Read_hits[i].hs) return 1;
+		}
+		return 0;
+	}
+
+bool Check_Hits_map(std::vector<std::vector<int> > VisualMap_input, std::vector<std::vector<int> > &VisualMap_output){
+		bool is_the_same = 1;
+    for (int i = 0; i < VisualMap_input.size(); i++) {
+    	for (size_t j = 0; j < VisualMap_input[i].size(); j++) {
+				if (VisualMap_input[i][j] != VisualMap_output[i][j]) is_the_same = 0;
+    	}
+    }
+		if (is_the_same == 1) return 1;
+		is_the_same = 1;
+
+
+		for (int i = 0; i < VisualMap_input.size(); i++) {
+			for (size_t j = 0; j < VisualMap_input[i].size()-1; j++) {
+				if (VisualMap_input[i][j] != VisualMap_output[i][j+1]) is_the_same = 0;
+			}
+		}
+		if (is_the_same == 1) return 1;
+		is_the_same = 1;
+
+		for (int i = 0; i < VisualMap_input.size(); i++) {
+			for (size_t j = 0; j < VisualMap_input[i].size()-1; j++) {
+				if (VisualMap_input[i][j+1] != VisualMap_output[i][j]) is_the_same = 0;
+			}
+		}
+		if (is_the_same == 1) return 1;
+		is_the_same = 1;
+
+		for (int i = 0; i < VisualMap_input.size(); i++) {
+			for (size_t j = 0; j < VisualMap_input[i].size()-2; j++) {
+				if (VisualMap_input[i][j+2] != VisualMap_output[i][j]) is_the_same = 0;
+			}
+		}
+		if (is_the_same == 1) return 1;
+		is_the_same = 1;
+
+		for (int i = 0; i < VisualMap_input.size(); i++) {
+			for (size_t j = 0; j < VisualMap_input[i].size()-2; j++) {
+				if (VisualMap_input[i][j] != VisualMap_output[i][j+2]) is_the_same = 0;
+			}
+		}
+		if (is_the_same == 1) return 1;
+
+		return 0;
+	}
 
 
 bool Hits_Generator_LUT(int Bx, int Key, int Pat, int LUT_code, std::vector<Hit>& hits)	// used to Fill Hits vector in CCLUT constructor
 	{
 		// Pattern validity check
-		if (!(Pat == 10 || Pat == 9 || Pat == 8 || Pat == 7 || Pat == 6)){
+		if (!(Pat == 0 || Pat == 1 || Pat == 2 || Pat == 3 || Pat == 4)){
 			 			return true;
 					}
-
 		std::vector<int> Hits_map;
     Convert_LUT_to_hits(LUT_code,Hits_map);
 
@@ -1138,7 +1410,7 @@ bool Hits_Generator_LUT(int Bx, int Key, int Pat, int LUT_code, std::vector<Hit>
 			return true;				// invalid number of hits
 
 
-		int pat_offset = 10 - Pat;
+		int pat_offset = Pat;
 		for (int i = 0; i < CSCConstants::NUM_LAYERS; i ++)
 		{
       if(Hits_map[i] > 0){
@@ -1406,7 +1678,7 @@ void ExtractHits(std::vector<CCLUT>& ccluts, std::vector<Hit>& hits, int feb)
 		return;
 	}
 
-	/// CSC
+	/// CCLUT
 bool WritePat(std::string & prefix, std::vector<CCLUT>& ccluts)
 	{
 		// Prepare output file streams

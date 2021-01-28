@@ -27,6 +27,7 @@
 
 
 
+
 // XDAQ includes
 #include "cgicc/Cgicc.h"
 #include "cgicc/HTMLClasses.h"
@@ -48,6 +49,8 @@
 #include "eth_lib.h"
 #include "utils.h"
 #include "commands.h"
+#include <time.h>
+#include <boost/filesystem.hpp>
 
 // testing includes
 #include <stdio.h>
@@ -105,7 +108,7 @@ CSCGEMTestApplication::CSCGEMTestApplication(xdaq::ApplicationStub * s)
 //  xgi::bind(this, &CSCGEMTestApplication::GetOTMBCompileType, "GetOTMBCompileType");
   //xgi::bind(this, &CSCGEMTestApplication::AddCLCT, "AddCLCT");
 //  xgi::bind(this, &CSCGEMTestApplication::AddComparatorHit, "AddComparatorHit");
-  xgi::bind(this, &CSCGEMTestApplication::AddGEM, "AddGEM");
+//  xgi::bind(this, &CSCGEMTestApplication::AddGEM, "AddGEM");
   xgi::bind(this, &CSCGEMTestApplication::AddCLCT, "AddCLCT");
   xgi::bind(this, &CSCGEMTestApplication::AddCCLUT, "AddCCLUT");
   xgi::bind(this, &CSCGEMTestApplication::AddCCLUT_GUI, "AddCCLUT_GUI");
@@ -164,15 +167,49 @@ CSCGEMTestApplication::CSCGEMTestApplication(xdaq::ApplicationStub * s)
   sprintf(YuriyConvtxtFile,"Yuriy_pattern.txt");
 
   // Cameron Addition : Jan. 2020
-  sprintf(GetSetPrefix, patternSet.Prefix.c_str());
 
+  time_t now = time(0);
+
+   cout << "Number of sec since January 1,1970 is:: " << now << endl;
+
+   tm *ltm = localtime(&now);
+
+   // print various components of tm structure.
+   cout << "Year:" << 1900 + ltm->tm_year<<endl;
+   cout << "Month: "<< 1 + ltm->tm_mon<< endl;
+   cout << "Day: "<< ltm->tm_mday << endl;
+   cout << "Time: "<< 5+ltm->tm_hour << ":";
+   cout << 30+ltm->tm_min << ":";
+   cout << ltm->tm_sec << endl;
+
+  std::stringstream savetime;
+  savetime <<"/home/cscdev/Sasha/OTMB_Pattern_test/";
+  savetime << 1900 + ltm->tm_year << "_" << 1 + ltm->tm_mon << "_" << ltm->tm_mday<< "/PiD0_time_"<< ltm->tm_hour <<"_" << ltm->tm_min << "_" << ltm->tm_sec <<".txt";
+  const std::string tmp =  std::string{savetime.str()};
+  const char* todayte = tmp.c_str();
+
+  std::stringstream savedir;
+  savedir <<"/home/cscdev/Sasha/OTMB_Pattern_test/";
+  savedir << 1900 + ltm->tm_year << "_" << 1 + ltm->tm_mon << "_" << ltm->tm_mday;
+  const std::string tmpd =  std::string{savedir.str()};
+  const char* savedirpath = tmpd.c_str();
+
+  boost::filesystem::path dir(savedirpath);
+
+    if(!(boost::filesystem::exists(dir)))
+    {
+        std::cout<<"Doesn't Exists"<<std::endl;
+        if (boost::filesystem::create_directory(dir))
+           std::cout << "....Successfully Created !" << std::endl;
+      }
+  std::cout<<"Save Dir = " <<
   sprintf(TrialsPerStep_char, "2");
 
   sprintf(GetCCLUT_bx_ps_char, "10");
   sprintf(GetCCLUT_key_ps_char, "15");
-  sprintf(GetCCLUT_pid_ps_char, "10");
+  sprintf(GetCCLUT_pid_ps_char, "0");
   sprintf(GetCCLUT_ccode_ps_char, "[0:4095]");
-  sprintf(ParamScanOutFile, "/home/cscdev/Sasha/test1_4095_PiD10.txt");
+  sprintf(ParamScanOutFile, todayte);
 
 
 
@@ -657,12 +694,12 @@ std::cout << "The tmbVector[tmb] = " << tmbVector[tmb] << std::endl;
   //*out << " PiD : " << cgicc::input().set("type","text").set("name","GetCCLUT_pid_char").set("size","7").set("value", GetCCLUT_pid_char) << endl;
   //*out << " CCLUT Code : " << cgicc::input().set("type","text").set("name","GetCCLUT_ccode_char").set("size","7").set("value", GetCCLUT_ccode_char) << endl;
   *out << cgicc::br() << endl;
-  *out << "BiD 10 : " << cgicc::input().set("value", "10").set("type","radio").set("name","BiD").set("id", "10").set("style", "padding-right: 50px;")<< "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" << endl;
-  *out << "BiD 9 : " << cgicc::input().set("value", "9").set("type","radio").set("name","BiD").set("id", "9") << "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" << endl;
-  *out << "BiD 8 : " << cgicc::input().set("value", "8").set("type","radio").set("name","BiD").set("id", "8") <<"&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;"  <<  endl;
-  *out << "BiD 7 : " << cgicc::input().set("value", "7").set("type","radio").set("name","BiD").set("id", "7") << "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" << endl;
-  *out << "BiD 6 : " << cgicc::input().set("value", "6").set("type","radio").set("name","BiD").set("id", "6") << "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" << endl;
-  *out << "<table><tbody><tr><td><table><tbody><tr><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><td><input type=\"radio\" value=\"3\" id=\"BiD10row0col0\" name=\"BiD10row0\" value=\"X\"><\/td><td><input type=\"radio\" value=\"2\" id=\"BiD10row0col1\" name=\"BiD10row0\" value=\"X\"><\/td><td><input type=\"radio\" value=\"1\" id=\"BiD10row0col2\" name=\"BiD10row0\" value=\"X\"><\/td><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><\/tr><tr><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><td><input type=\"radio\" value=\"3\" id=\"BiD10row1col0\" name=\"BiD10row1\" value=\"X\"><\/td><td><input type=\"radio\" value=\"2\" id=\"BiD10row1col1\" name=\"BiD10row1\" value=\"X\"><\/td><td><input type=\"radio\" value=\"1\" id=\"BiD10row1col2\" name=\"BiD10row1\" value=\"X\"><\/td><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><\/tr><tr><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><td><input type=\"radio\" value=\"3\" id=\"BiD10row2col0\" name=\"BiD10row2\" value=\"X\"><\/td><td><input type=\"radio\" value=\"2\" id=\"BiD10row2col1\" name=\"BiD10row2\" value=\"X\"><\/td><td><input type=\"radio\" value=\"1\" id=\"BiD10row2col2\" name=\"BiD10row2\" value=\"X\"><\/td><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><\/tr><tr><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><td><input type=\"radio\" value=\"3\" id=\"BiD10row3col0\" name=\"BiD10row3\" value=\"X\"><\/td><td><input type=\"radio\" value=\"2\" id=\"BiD10row3col1\" name=\"BiD10row3\" value=\"X\"><\/td><td><input type=\"radio\" value=\"1\" id=\"BiD10row3col2\" name=\"BiD10row3\" value=\"X\"><\/td><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><\/tr><tr><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><td><input type=\"radio\" value=\"3\" id=\"BiD10row4col0\" name=\"BiD10row4\" value=\"X\"><\/td><td><input type=\"radio\" value=\"2\" id=\"BiD10row4col1\" name=\"BiD10row4\" value=\"X\"><\/td><td><input type=\"radio\" value=\"1\" id=\"BiD10row4col2\" name=\"BiD10row4\" value=\"X\"><\/td><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><\/tr><tr><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><td><input type=\"radio\" value=\"3\" id=\"BiD10row5col0\" name=\"BiD10row5\" value=\"X\"><\/td><td><input type=\"radio\" value=\"2\" id=\"BiD10row5col1\" name=\"BiD10row5\" value=\"X\"><\/td><td><input type=\"radio\" value=\"1\" id=\"BiD10row5col2\" name=\"BiD10row5\" value=\"X\"><\/td><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><\/tr><\/tbody><\/table></td><td><table><tbody><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr></tbody></table></td><td>  <table><tbody><tr><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"3\" id=\"BiD9row0col0\" name=\"BiD9row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"2\" id=\"BiD9row0col1\" name=\"BiD9row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"1\" id=\"BiD9row0col2\" name=\"BiD9row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"3\" id=\"BiD9row1col0\" name=\"BiD9row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"2\" id=\"BiD9row1col1\" name=\"BiD9row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"1\" id=\"BiD9row1col2\" name=\"BiD9row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"3\" id=\"BiD9row2col0\" name=\"BiD9row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"2\" id=\"BiD9row2col1\" name=\"BiD9row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"1\" id=\"BiD9row2col2\" name=\"BiD9row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"3\" id=\"BiD9row3col0\" name=\"BiD9row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"2\" id=\"BiD9row3col1\" name=\"BiD9row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"1\" id=\"BiD9row3col2\" name=\"BiD9row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"3\" id=\"BiD9row4col0\" name=\"BiD9row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"2\" id=\"BiD9row4col1\" name=\"BiD9row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"1\" id=\"BiD9row4col2\" name=\"BiD9row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"3\" id=\"BiD9row5col0\" name=\"BiD9row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"2\" id=\"BiD9row5col1\" name=\"BiD9row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"1\" id=\"BiD9row5col2\" name=\"BiD9row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td></tr></tbody></table></td><td><table><tbody><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr></tbody></table></td><td><table><tbody><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD8row0col0\" name=\"BiD8row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD8row0col1\" name=\"BiD8row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD8row0col2\" name=\"BiD8row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD8row1col0\" name=\"BiD8row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD8row1col1\" name=\"BiD8row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD8row1col2\" name=\"BiD8row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD8row2col0\" name=\"BiD8row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD8row2col1\" name=\"BiD8row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD8row2col2\" name=\"BiD8row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD8row3col0\" name=\"BiD8row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD8row3col1\" name=\"BiD8row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD8row3col2\" name=\"BiD8row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD8row4col0\" name=\"BiD8row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD8row4col1\" name=\"BiD8row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD8row4col2\" name=\"BiD8row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD8row5col0\" name=\"BiD8row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD8row5col1\" name=\"BiD8row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD8row5col2\" name=\"BiD8row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr></tbody></table></td><td><table><tbody><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr></tbody></table></td><td><table><tbody><tr><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD7row0col0\" name=\"BiD7row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD7row0col1\" name=\"BiD7row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD7row0col2\" name=\"BiD7row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD7row1col0\" name=\"BiD7row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD7row1col1\" name=\"BiD7row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD7row1col2\" name=\"BiD7row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD7row2col0\" name=\"BiD7row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD7row2col1\" name=\"BiD7row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD7row2col2\" name=\"BiD7row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD7row3col0\" name=\"BiD7row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD7row3col1\" name=\"BiD7row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD7row3col2\" name=\"BiD7row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD7row4col0\" name=\"BiD7row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD7row4col1\" name=\"BiD7row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD7row4col2\" name=\"BiD7row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD7row5col0\" name=\"BiD7row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD7row5col1\" name=\"BiD7row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD7row5col2\" name=\"BiD7row5\" ></td></tr></tbody></table></td><td><table><tbody><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr></tbody></table></td><td><table><tbody><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD6row0col0\" name=\"BiD6row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD6row0col1\" name=\"BiD6row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD6row0col2\" name=\"BiD6row0\" ></td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD6row1col0\" name=\"BiD6row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD6row1col1\" name=\"BiD6row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD6row1col2\" name=\"BiD6row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD6row2col0\" name=\"BiD6row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD6row2col1\" name=\"BiD6row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD6row2col2\" name=\"BiD6row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD6row3col0\" name=\"BiD6row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD6row3col1\" name=\"BiD6row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD6row3col2\" name=\"BiD6row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD6row4col0\" name=\"BiD6row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD6row4col1\" name=\"BiD6row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD6row4col2\" name=\"BiD6row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD6row5col0\" name=\"BiD6row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD6row5col1\" name=\"BiD6row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD6row5col2\" name=\"BiD6row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr></tbody></table></td></tr></tbody></table>";
+  *out << "BiD 4 : " << cgicc::input().set("value", "4").set("type","radio").set("name","BiD").set("id", "4").set("style", "padding-right: 50px;")<< "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" << endl;
+  *out << "BiD 3: " << cgicc::input().set("value", "3").set("type","radio").set("name","BiD").set("id", "3") << "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" << endl;
+  *out << "BiD 2 : " << cgicc::input().set("value", "2").set("type","radio").set("name","BiD").set("id", "2") <<"&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;"  <<  endl;
+  *out << "BiD 1 : " << cgicc::input().set("value", "1").set("type","radio").set("name","BiD").set("id", "1") << "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" << endl;
+  *out << "BiD 0 : " << cgicc::input().set("value", "0").set("type","radio").set("name","BiD").set("id", "0") << "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" << endl;
+  *out << "<table><tbody><tr><td><table><tbody><tr><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><td><input type=\"radio\" value=\"3\" id=\"BiD4row0col0\" name=\"BiD4row0\" value=\"X\"><\/td><td><input type=\"radio\" value=\"2\" id=\"BiD4row0col1\" name=\"BiD4row0\" value=\"X\"><\/td><td><input type=\"radio\" value=\"1\" id=\"BiD4row0col2\" name=\"BiD4row0\" value=\"X\"><\/td><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><\/tr><tr><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><td><input type=\"radio\" value=\"3\" id=\"BiD4row1col0\" name=\"BiD4row1\" value=\"X\"><\/td><td><input type=\"radio\" value=\"2\" id=\"BiD4row1col1\" name=\"BiD4row1\" value=\"X\"><\/td><td><input type=\"radio\" value=\"1\" id=\"BiD4row1col2\" name=\"BiD4row1\" value=\"X\"><\/td><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><\/tr><tr><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><td><input type=\"radio\" value=\"3\" id=\"BiD4row2col0\" name=\"BiD4row2\" value=\"X\"><\/td><td><input type=\"radio\" value=\"2\" id=\"BiD4row2col1\" name=\"BiD4row2\" value=\"X\"><\/td><td><input type=\"radio\" value=\"1\" id=\"BiD4row2col2\" name=\"BiD4row2\" value=\"X\"><\/td><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><\/tr><tr><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><td><input type=\"radio\" value=\"3\" id=\"BiD4row3col0\" name=\"BiD4row3\" value=\"X\"><\/td><td><input type=\"radio\" value=\"2\" id=\"BiD4row3col1\" name=\"BiD4row3\" value=\"X\"><\/td><td><input type=\"radio\" value=\"1\" id=\"BiD4row3col2\" name=\"BiD4row3\" value=\"X\"><\/td><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><\/tr><tr><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><td><input type=\"radio\" value=\"3\" id=\"BiD4row4col0\" name=\"BiD4row4\" value=\"X\"><\/td><td><input type=\"radio\" value=\"2\" id=\"BiD4row4col1\" name=\"BiD4row4\" value=\"X\"><\/td><td><input type=\"radio\" value=\"1\" id=\"BiD4row4col2\" name=\"BiD4row4\" value=\"X\"><\/td><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><\/tr><tr><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><td><input type=\"radio\" value=\"3\" id=\"BiD4row5col0\" name=\"BiD4row5\" value=\"X\"><\/td><td><input type=\"radio\" value=\"2\" id=\"BiD4row5col1\" name=\"BiD4row5\" value=\"X\"><\/td><td><input type=\"radio\" value=\"1\" id=\"BiD4row5col2\" name=\"BiD4row5\" value=\"X\"><\/td><td>~<\/td><td>~<\/td><td>~<\/td><td>~<\/td><\/tr><\/tbody><\/table></td><td><table><tbody><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr></tbody></table></td><td>  <table><tbody><tr><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"3\" id=\"BiD3row0col0\" name=\"BiD3row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"2\" id=\"BiD3row0col1\" name=\"BiD3row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"1\" id=\"BiD3row0col2\" name=\"BiD3row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"3\" id=\"BiD3row1col0\" name=\"BiD3row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"2\" id=\"BiD3row1col1\" name=\"BiD3row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"1\" id=\"BiD3row1col2\" name=\"BiD3row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"3\" id=\"BiD3row2col0\" name=\"BiD3row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"2\" id=\"BiD3row2col1\" name=\"BiD3row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"1\" id=\"BiD3row2col2\" name=\"BiD3row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"3\" id=\"BiD3row3col0\" name=\"BiD3row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"2\" id=\"BiD3row3col1\" name=\"BiD3row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"1\" id=\"BiD3row3col2\" name=\"BiD3row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"3\" id=\"BiD3row4col0\" name=\"BiD3row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"2\" id=\"BiD3row4col1\" name=\"BiD3row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"1\" id=\"BiD3row4col2\" name=\"BiD3row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"3\" id=\"BiD3row5col0\" name=\"BiD3row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"2\" id=\"BiD3row5col1\" name=\"BiD3row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" ><input type=\"radio\" value=\"1\" id=\"BiD3row5col2\" name=\"BiD3row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td><td style=\"width: 20px;\" style=\"text-align: center;\" >~</td></tr></tbody></table></td><td><table><tbody><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr></tbody></table></td><td><table><tbody><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD2row0col0\" name=\"BiD2row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD2row0col1\" name=\"BiD2row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD2row0col2\" name=\"BiD2row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD2row1col0\" name=\"BiD2row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD2row1col1\" name=\"BiD2row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD2row1col2\" name=\"BiD2row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD2row2col0\" name=\"BiD2row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD2row2col1\" name=\"BiD2row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD2row2col2\" name=\"BiD2row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD2row3col0\" name=\"BiD2row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD2row3col1\" name=\"BiD2row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD2row3col2\" name=\"BiD2row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD2row4col0\" name=\"BiD2row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD2row4col1\" name=\"BiD2row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD2row4col2\" name=\"BiD2row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD2row5col0\" name=\"BiD2row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD2row5col1\" name=\"BiD2row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD2row5col2\" name=\"BiD2row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr></tbody></table></td><td><table><tbody><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr></tbody></table></td><td><table><tbody><tr><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD1row0col0\" name=\"BiD1row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD1row0col1\" name=\"BiD1row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD1row0col2\" name=\"BiD1row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD1row1col0\" name=\"BiD1row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD1row1col1\" name=\"BiD1row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD1row1col2\" name=\"BiD1row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD1row2col0\" name=\"BiD1row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD1row2col1\" name=\"BiD1row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD1row2col2\" name=\"BiD1row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD1row3col0\" name=\"BiD1row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD1row3col1\" name=\"BiD1row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD1row3col2\" name=\"BiD1row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD1row4col0\" name=\"BiD1row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD1row4col1\" name=\"BiD1row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD1row4col2\" name=\"BiD1row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD1row5col0\" name=\"BiD1row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD1row5col1\" name=\"BiD1row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD1row5col2\" name=\"BiD1row5\" ></td></tr></tbody></table></td><td><table><tbody><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr><tr><td>|</td><td>| </td></tr></tbody></table></td><td><table><tbody><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD0row0col0\" name=\"BiD0row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD0row0col1\" name=\"BiD0row0\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD0row0col2\" name=\"BiD0row0\" ></td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD0row1col0\" name=\"BiD0row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD0row1col1\" name=\"BiD0row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD0row1col2\" name=\"BiD0row1\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD0row2col0\" name=\"BiD0row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD0row2col1\" name=\"BiD0row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD0row2col2\" name=\"BiD0row2\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD0row3col0\" name=\"BiD0row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD0row3col1\" name=\"BiD0row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD0row3col2\" name=\"BiD0row3\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD0row4col0\" name=\"BiD0row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD0row4col1\" name=\"BiD0row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD0row4col2\" name=\"BiD0row4\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr><tr><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"3\" id=\"BiD0row5col0\" name=\"BiD0row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"2\" id=\"BiD0row5col1\" name=\"BiD0row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\"><input type=\"radio\" value=\"1\" id=\"BiD0row5col2\" name=\"BiD0row5\" ></td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td><td style=\"width: 20px;\" style=\"text-align: center;\">~</td></tr></tbody></table></td></tr></tbody></table>";
 
   *out << cgicc::br() << endl;
   *out << cgicc::input().set("type","submit").set("value","Add").set("name", "Add CCLUT") << endl;
@@ -1492,9 +1529,6 @@ void CSCGEMTestApplication::RunStudyCCLUT(xgi::Input * in, xgi::Output * out)
   patternSet.N_trials += GetNtrials_int;
   for(int i=0; i < GetNtrials_int; i++){
     patternSet.Dump();
-
-
-
     clct0_lsbs = thisTMB->ReadRegister(seq_clct0_adr);
     clct1_lsbs = thisTMB->ReadRegister(seq_clct1_adr);
     clct_msbs  = thisTMB->ReadRegister(seq_clctm_adr);
@@ -1773,7 +1807,24 @@ void CSCGEMTestApplication::AddCCLUTParamScan(xgi::Input * in, xgi::Output * out
   GetCCLUT_ps_char[2] = GetCCLUT_pid_ps_char;
   GetCCLUT_ps_char[3] = GetCCLUT_ccode_ps_char;
 
+  time_t now = time(0);
+  tm *ltm = localtime(&now);
+
   std::vector<int> ps_cclut_info;
+  std::stringstream savetime;
+  savetime <<"/home/cscdev/Sasha/OTMB_Pattern_test/";
+  savetime << 1900 + ltm->tm_year << "_" << 1 + ltm->tm_mon << "_" << ltm->tm_mday<< "/";
+
+
+  std::stringstream savedir;
+  savedir <<"/home/cscdev/Sasha/OTMB_Pattern_test/";
+  savedir << 1900 + ltm->tm_year << "_" << 1 + ltm->tm_mon << "_" << ltm->tm_mday;
+  const std::string tmpd =  std::string{savedir.str()};
+  const char* savedirpath = tmpd.c_str();
+
+
+  std::vector<std::vector<int> > parameters;
+
 
   for(int i=0; i < GetCCLUT_ps_char.size(); i++){
     std::istringstream ss;
@@ -1783,6 +1834,15 @@ void CSCGEMTestApplication::AddCCLUTParamScan(xgi::Input * in, xgi::Output * out
     range.param = i;
     range.cclut = CCLUT_ps_vec.size();
     range.step_size = 1;
+
+    boost::filesystem::path dir(savedirpath);
+
+    if(!(boost::filesystem::exists(dir)))
+    {
+        std::cout<<"Doesn't Exists"<<std::endl;
+        if (boost::filesystem::create_directory(dir))
+           std::cout << "....Successfully Created !" << std::endl;
+      }
 
     if(ss.str().empty()){
         cout << "empty" << endl;
@@ -1802,6 +1862,10 @@ void CSCGEMTestApplication::AddCCLUTParamScan(xgi::Input * in, xgi::Output * out
         range.min = b;
         range.max = a;
       }
+      std::vector<int> parm;
+      parm.push_back(range.min);
+      parm.push_back(range.max);
+      parameters.push_back(parm);
       Free_paramsCCLUT.push_back(range);
       ps_cclut_info.push_back(a);
     }
@@ -1809,13 +1873,50 @@ void CSCGEMTestApplication::AddCCLUTParamScan(xgi::Input * in, xgi::Output * out
       cout << "We are reading a SINGLE VALUE:" << ss.str() << endl << endl;
       int a;
       ss >> a;
+      std::vector<int> parm;
+      parm.push_back(a);
+      parm.push_back(-999);
+      parameters.push_back(parm);
       ps_cclut_info.push_back(a);
       cout << "The Value is a = " << a << endl << endl;
     }
   }
-
   CCLUT_ps_vec.push_back(cw::CCLUT(ps_cclut_info[0],ps_cclut_info[1],ps_cclut_info[2],ps_cclut_info[3]));
+  savetime << "PiD-" ;
+  if (parameters[2][1] == -999){
+    savetime << parameters[2][0];
+  }
+  else {
+    savetime << parameters[2][0] << "to" << parameters[2][1];
+  }
+  savetime << "_time-" << ltm->tm_hour <<"-" << ltm->tm_min << "-" << ltm->tm_sec;
+  savetime << "_cc_code-";
+  if (parameters[3][1] == -999){
+    savetime << parameters[3][0];
+  }
+  else {
+    savetime << parameters[3][0] << "to" << parameters[3][1];
+  }
 
+  savetime << "_Key-";
+  if (parameters[1][1] == -999){
+    savetime << parameters[1][0];
+  }
+  else {
+    savetime << parameters[1][0] << "to" << parameters[1][1];
+  }
+
+  savetime << "_BX-";
+  if (parameters[0][1] == -999){
+    savetime << parameters[0][0];
+  }
+  else {
+    savetime << parameters[0][0] << "to" << parameters[0][1];
+  }
+  savetime << ".txt";
+  const std::string tmp =  std::string{savetime.str()};
+  const char* todayte = tmp.c_str();
+  sprintf(ParamScanOutFile, todayte);
   this->Default(in,out);
   return;
 }
@@ -1948,7 +2049,8 @@ void CSCGEMTestApplication::RunParamScanCCLUT(xgi::Input * in, xgi::Output * out
     		CLCT1_data_ = ( (cclut_msbs & 0xf) << 16 ) | (cclut1_lsbs & 0xffff);
 
     int CLCT0_nhit = thisTMB->ExtractValueFromData(CLCT0_data_, CLCT0_nhit_bitlo, CLCT0_nhit_bithi);
-    int CLCT0_pid = thisTMB->ExtractValueFromData(CLCT0_data_, CLCT0_pattern_bitlo, CLCT0_pattern_bithi);
+    int CLCT0_pid = thisTMB->ExtractValueFromData(CLCT0_data_, CLCT0_pattern_bitlo, CLCT0_pattern_bithi);  //Will need changes here
+    if (CLCT0_pid < 0) CLCT0_pid = 0;
     int CLCT0_key = thisTMB->ExtractValueFromData(CLCT0_data_, CLCT0_keyHalfStrip_bitlo, CLCT0_keyHalfStrip_bithi);
     int CLCT0_CC = thisTMB->ExtractValueFromData(clct0_CC_data_, clct0_cc_bitlo, clct0_cc_bithi);
 
@@ -2022,10 +2124,17 @@ void CSCGEMTestApplication::RunParamScanCCLUT(xgi::Input * in, xgi::Output * out
   Corr.PiD = 0;
   Corr.ResEight = 0;
   Corr.CC_code = 0;
+  int Hits_Correlation = 0;
+  int Hits_Correlation_visual = 0;
   if(SendTo[0].Nhit > 3){
 
   for (size_t i = 0; i <  SendTo.size(); i++) {
-     //Basic check for correlesion
+      std::vector<std::vector<int> > VisualMapSend_temp;
+      std::vector<std::vector<int> > VisualMapRead_temp;
+      cw::Plot_And_Compare_Hits(SendTo[i],VisualMapSend_temp);
+      cw::Plot_And_Compare_Hits(ReadFrom[i],VisualMapRead_temp);
+      if(cw::Check_Hits_map(VisualMapSend_temp,VisualMapRead_temp)) Hits_Correlation_visual++;
+      if(cw::Check_Hits(SendTo[i], 10, ReadFrom[i],10) == 0)  Hits_Correlation++;
       if( SendTo[i].Nhit == ReadFrom[i].Nhit) Corr.Nhit++;
       if( SendTo[i].Key  == ReadFrom[i].Key) Corr.Key++;
       if( SendTo[i].PiD == ReadFrom[i].PiD) Corr.PiD++;
@@ -2048,31 +2157,79 @@ void CSCGEMTestApplication::RunParamScanCCLUT(xgi::Input * in, xgi::Output * out
     All ++;
   }
   //if( Corr.Key != SendTo.size() && /* (Corr.ResEight != SendTo.size() || Corr.PiD != SendTo.size() || Corr.Nhit != SendTo.size() )  && */( SendTo[0].Nhit > 3)){
-  if( (Corr.Key != SendTo.size()) && ( SendTo[0].Nhit > 3)){
+  //if( (Corr.Key != SendTo.size()) && ( SendTo[0].Nhit > 3)){
+  if( (Hits_Correlation_visual != SendTo.size()) && ( SendTo[0].Nhit > 3)){
+
     std::vector<double> res = cw::Get_Expexted_Key_Input(patternSet.LUT[0]);
     Fail ++;
-    fout << "    Nhit       Key(Exp)     PiD      ResEight       CC code" << std::endl;
-    fout << "Send:  " << SendTo[0].Nhit << "       " << SendTo[0].Key  << "       " << SendTo[0].PiD << "       " << SendTo[0].ResEight << "       " << SendTo[0].CC_code << "                   LUT_code: " << patternSet.LUT[0].LUT_code <<  std::endl;
-    fout << "Read:  " << ReadFrom[0].Nhit << "       " <<   ReadFrom[0].Key << "       " <<   ReadFrom[0].PiD << "       " <<   ReadFrom[0].ResEight << "       " <<   ReadFrom[0].CC_code << std::endl;
-    fout << "Corr:" << Corr.Nhit <<"/" << SendTo.size()<<"     "<< Corr.Key <<"/" << SendTo.size()<<"     "<< Corr.PiD <<"/" << SendTo.size()<<"     "<< Corr.ResEight <<"/" << SendTo.size()<<"     "<< Corr.CC_code <<"/" << SendTo.size()<<"  "<< std::endl;
-    fout <<  std::endl;
-    fout << "Slope: " << res[0] << "; Intercept: " << res[1] << "; key: " <<  res[2] << std::endl;
-    fout << "Toatal misses:     " <<  Accuracy.Nhit << "/" << All << ";  " <<  Accuracy.Key << "/" << All << ";  " <<  Accuracy.PiD << "/" << All << ";  " <<  Accuracy.ResEight << "/" << All << ";  " <<  Accuracy.CC_code << "/" << All << std::endl;
-    fout << "Toatal misses(+-1):" <<  Accuracy_1.Nhit << "/" << All << ";  " <<  Accuracy_1.Key << "/" << All << ";  " <<  Accuracy_1.PiD << "/" << All << ";  " <<  Accuracy_1.ResEight << "/" << All << ";  " <<  Accuracy_1.CC_code << "/" << All << std::endl;
+    //fout << "    Nhit       Key(Exp)     PiD      ResEight       CC code" << std::endl;
+    //fout << "Send:  " << SendTo[0].Nhit << "       " << SendTo[0].Key  << "       " << SendTo[0].PiD << "       " << SendTo[0].ResEight << "       " << SendTo[0].CC_code << "                   LUT_code: " << patternSet.LUT[0].LUT_code <<  std::endl;
+    //fout << "Read:  " << ReadFrom[0].Nhit << "       " <<   ReadFrom[0].Key << "       " <<   ReadFrom[0].PiD << "       " <<   ReadFrom[0].ResEight << "       " <<   ReadFrom[0].CC_code << std::endl;
+    //fout << "Corr:" << Corr.Nhit <<"/" << SendTo.size()<<"     "<< Corr.Key <<"/" << SendTo.size()<<"     "<< Corr.PiD <<"/" << SendTo.size()<<"     "<< Corr.ResEight <<"/" << SendTo.size()<<"     "<< Corr.CC_code <<"/" << SendTo.size()<<"  "<< std::endl;
+    //fout <<  std::endl;
+    //fout << "Slope: " << res[0] << "; Intercept: " << res[1] << "; key: " <<  res[2] << std::endl;
+    //fout << "Toatal misses:     " <<  Accuracy.Nhit << "/" << All << ";  " <<  Accuracy.Key << "/" << All << ";  " <<  Accuracy.PiD << "/" << All << ";  " <<  Accuracy.ResEight << "/" << All << ";  " <<  Accuracy.CC_code << "/" << All << std::endl;
+    //fout << "Toatal misses(+-1):" <<  Accuracy_1.Nhit << "/" << All << ";  " <<  Accuracy_1.Key << "/" << All << ";  " <<  Accuracy_1.PiD << "/" << All << ";  " <<  Accuracy_1.ResEight << "/" << All << ";  " <<  Accuracy_1.CC_code << "/" << All << std::endl;
+
+    std::vector<std::vector<std::string> > response;
+    cw::generate_response(SendTo[0], ReadFrom[0], Corr, SendTo.size(), Accuracy, Accuracy_1, All, response);
+
+    for (size_t i = 0; i < response.size(); i++) {
+      for (size_t j = 0; j < response[i].size(); j++) {
+      fout << response[i][j];
+      }
+      fout << endl;
+    }
     fout << "Fail/All(nHit > 3) = " << Fail << "/" << All <<  std::endl;
     fout << "   Send                    Read                      Compare" << std::endl;
-    int VisualMapSend[CSCConstants::NUM_LAYERS][13];
-    int VisualMapRead[CSCConstants::NUM_LAYERS][13];
+    std::vector<std::vector<int> > VisualMapSend;
+    std::vector<std::vector<int> > VisualMapRead;
     cw::Plot_And_Compare_Hits(SendTo[0],VisualMapSend);
     cw::Plot_And_Compare_Hits(ReadFrom[0],VisualMapRead);
-    for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
-      for (int j = 0; j < 13; j++) {
+    for (int i = 0; i < VisualMapSend.size(); i++) {
+      for (int j = 0; j < VisualMapSend[i].size(); j++) {
         if(VisualMapSend[i][j] == 0) fout << "~";
         else if(VisualMapSend[i][j] == 1) fout << "X";
         else fout << "?";
       }
       fout << "        " ;
-      for (int j = 0; j < 13; j++) {
+      for (int j = 0; j < VisualMapRead[i].size(); j++) {
+        if(VisualMapRead[i][j] == 0) fout << "~";
+        else if(VisualMapRead[i][j] == 1) fout << "X";
+        else fout << "?";
+      }
+      fout << std::endl;
+    }
+    fout << "****************************************************************************************************************"<< std::endl;
+
+
+  }
+  if( All % 1000 == 999){
+    fout << "Checkpoint Data" << endl;
+    std::vector<double> res = cw::Get_Expexted_Key_Input(patternSet.LUT[0]);
+    std::vector<std::vector<std::string> > response;
+    cw::generate_response(SendTo[0], ReadFrom[0], Corr, SendTo.size(), Accuracy, Accuracy_1, All, response);
+
+    for (size_t i = 0; i < response.size(); i++) {
+      for (size_t j = 0; j < response[i].size(); j++) {
+      fout << response[i][j];
+      }
+      fout << endl;
+    }
+    fout << "Fail/All(nHit > 3) = " << Fail << "/" << All <<  std::endl;
+    fout << "   Send                    Read                      Compare" << std::endl;
+    std::vector<std::vector<int> > VisualMapSend;
+    std::vector<std::vector<int> > VisualMapRead;
+    cw::Plot_And_Compare_Hits(SendTo[0],VisualMapSend);
+    cw::Plot_And_Compare_Hits(ReadFrom[0],VisualMapRead);
+    for (int i = 0; i < VisualMapSend.size(); i++) {
+      for (int j = 0; j < VisualMapSend[i].size(); j++) {
+        if(VisualMapSend[i][j] == 0) fout << "~";
+        else if(VisualMapSend[i][j] == 1) fout << "X";
+        else fout << "?";
+      }
+      fout << "        " ;
+      for (int j = 0; j < VisualMapRead[i].size(); j++) {
         if(VisualMapRead[i][j] == 0) fout << "~";
         else if(VisualMapRead[i][j] == 1) fout << "X";
         else fout << "?";
@@ -2093,15 +2250,20 @@ void CSCGEMTestApplication::RunParamScanCCLUT(xgi::Input * in, xgi::Output * out
 	}
   */
 }while(Increment(CCLUT_ps_vec, Free_paramsCCLUT));
-  fout << "                      Nhit     Key     PiD    ResEight     CC code" << std::endl;
-  fout << "Toatal misses:     " <<  Accuracy.Nhit << "/" << All << ";  " <<  Accuracy.Key << "/" << All << ";  " <<  Accuracy.PiD << "/" << All << ";  " <<  Accuracy.ResEight << "/" << All << ";  " <<  Accuracy.CC_code << "/" << All << std::endl;
-  fout << "Toatal misses(+-1):" <<  Accuracy_1.Nhit << "/" << All << ";  " <<  Accuracy_1.Key << "/" << All << ";  " <<  Accuracy_1.PiD << "/" << All << ";  " <<  Accuracy_1.ResEight << "/" << All << ";  " <<  Accuracy_1.CC_code << "/" << All << std::endl;
-  fout << "Fail/All(nHit > 3) = " << Fail << "/" << All <<  std::endl;
-
-  fout.close();
-  usleep(20000);
-  this->Default(in,out);
-  return;
+  fout << "FINAL SCORE" << '\n';
+  std::vector<std::vector<std::string> > response_final;
+  cw::generate_response(Accuracy,Accuracy, Accuracy,1, Accuracy, Accuracy_1, All, response_final);
+  for (size_t i = 0; i < response_final.size(); i++) {
+    for (size_t j = 0; j < response_final[i].size(); j++) {
+      if (i == 0 || i == 4 || i == 5) fout << response_final[i][j];
+    }
+    if (i == 0 || i == 4 || i == 5)fout << endl;
+  }
+    fout << "Fail/All(nHit > 3) = " << Fail << "/" << All <<  std::endl;
+    fout.close();
+    usleep(1000);
+    this->Default(in,out);
+    return;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

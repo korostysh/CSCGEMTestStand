@@ -1,2 +1,1 @@
 # CSCGEMTestStand intital
-# CSCGEMTestStand
